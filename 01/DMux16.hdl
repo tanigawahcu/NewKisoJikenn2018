@@ -1,0 +1,14 @@
+
+/**
+ * Demultiplexor:
+ * {a, b} = {in, 0} if sel == 0
+ *          {0, in} if sel == 1
+ */
+
+CHIP DMux {
+    IN in[16], sel;
+    OUT a[16], b[16];
+
+    PARTS:
+    // Put your code here:
+}
