@@ -1,6 +1,0 @@
-CHIP Nflag16 {
-     IN in[16];
-     OUT out;
-     PARTS:
-     AND(a=in[15],b=true,out=out);
-}
