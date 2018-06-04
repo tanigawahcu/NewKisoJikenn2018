@@ -1,13 +1,23 @@
 class Parser():
-    @property
-    def A_COMMAND(self):
-        return 1
-    @property
-    def C_COMMAND(self):
-        return 2
-    @property
-    def L_COMMAND(self):
-        return 3
+    # @property
+    # def A_COMMAND(self):
+    #     return 1
+    # @property
+    # def C_COMMAND(self):
+    #     return 2
+    # @property
+    # def L_COMMAND(self):
+    #     return 3
+    C_ARITHMETIC = 0
+    C_PUSH       = 1
+    C_POP        = 2
+    C_LABEL      = 3
+    C_GOTO       = 4
+    C_IF         = 5
+    C_FUNCTION   = 6
+    C_RETURN     = 7
+    C_CALL       = 8
+    C_UNKNOWN    = 9
 
     def __init__(self, fin_name):
         # 入力ファイルのストリームをオープンする
@@ -49,72 +59,38 @@ class Parser():
             # 命令とコメントまでの空白を取り除く
             self.command = self.command.strip()
 
+        # スペースを区切り文字として，フィールドのリストとする
+        self.fields = self.command.split()
+
+
     # 取り込んだ命令の種類を判別する
     def commandType(self):
-        if self.command[0] == '@':
-            self.type = self.A_COMMAND
-        elif self.command[0] == '(':
-            self.type = self.L_COMMAND
+        arith_lists = ['add', 'sub', 'neg', 'eq',
+            'gt', 'lt', 'and', 'or', 'not']
+        for op in arith_lists:
+            if self.command.find(op) :
+                self.type = self.C_ARITHMETIC
+
+        if self.command.find('push') >= 0 :
+            self.type = self.C_PUSH
+        elif self.command.find('pop') >= 0 :
+            self.type = self.C_POP
         else :
-            self.type = self.C_COMMAND
+            self.type = self.C_UNKNOWN
 
         return self.type
 
-    def symbol(self):
-        if self.type == self.A_COMMAND :
-            # 先頭の’＠’を取り除いた文字列を取り出す
+    def arg1(self):
+        if self.type == self.C_ARITHMETIC :
+            # 算術演算の場合，コマンドそのものを返す
+            return self.fields[0]
 
-            return self.command.strip('@')
+        elif self.type == self.C_POP or self.type == self.C_PUSH:
+            # フィールドの1つ目を返す
+            return self.fields[1]
 
-        elif self.type == self.L_COMMAND :
-            # 先頭と最後の()を取り除いたラベルを取得する
-            label = self.command.strip('()')
-
-            return label
-
-    def dest(self):
-        # destフィールドは'='の記号より前
-        # '='を含まない場合は，空文字を返す
-        if '=' in self.command:
-            # '=' の位置を検索する
-            index = self.command.find('=')
-            # '='の位置までの文字列を取り出す
-            dest_str = self.command[:index]
-            # 取り出した文字列よりスペースなどを取り除き，返す
-            return dest_str.strip()
-        else :
-            return ''
-
-    def comp(self):
-        # compフィールドは'='と';'の間．
-        # '='と';'はない場合もある．
-
-        # '=' より後の文字列を取り出す
-        if '=' in self.command:
-            index = self.command.find('=')
-            comp0_str = self.command[index+1:]
-        else:
-            comp0_str = self.command
-
-        # ';' より前の文字列を取り出す
-        if ';' in comp0_str :
-            index = comp0_str.find(';')
-            comp1_str = comp0_str[:index]
-        else :
-            comp1_str = comp0_str
-
-        # 取り出した文字列よりスペースなどを取り除き，返す
-        return comp1_str.strip()
-
-    def jump(self):
-        # jumpフィールドは';'の記号より後
-        # ';'を含まない場合は，空文字を返す
-        if ';' in self.command:
-            # ';' の位置を検索する
-            index = self.command.find(';')
-            # '='の位置までの文字列を取り出す
-            jump_str = self.command[index+1:]
-            # 取り出した文字列よりスペースなどを取り除き，返す
-            return jump_str.strip()
-        else :
-            return ''
+    def arg2(self):
+        # pushかpopのみ動作する
+        if self.type == self.C_PUSH or self.type == self.C_POP :
+            # フィールドの2つ目を返す
+            return self.fields[2]
