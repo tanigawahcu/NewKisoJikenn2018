@@ -8,11 +8,15 @@ class CodeWriter():
         if command.find('add') >= 0 :
             self.writeMicroPop()
             self.fout.write('@SP\n')
-            self.fout.write('M=M-1\n')
-            self.fout.write('@SP\n')
-            self.fout.write('A=M\n')
-            self.fout.write('D=M+D\n')
-            self.writeMicroPush()
+            self.fout.write('A=M-1\n')
+            self.fout.write('M=M+D\n')
+            
+            # self.fout.write('@SP\n')
+            # self.fout.write('M=M-1\n')
+            # self.fout.write('@SP\n')
+            # self.fout.write('A=M\n')
+            # self.fout.write('D=M+D\n')
+            # self.writeMicroPush()
 
     def writePushPop(self, command, segment, index):
         if command == Parser.Parser.C_PUSH :
