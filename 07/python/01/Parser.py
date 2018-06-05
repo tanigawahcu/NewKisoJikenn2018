@@ -65,18 +65,18 @@ class Parser():
 
     # 取り込んだ命令の種類を判別する
     def commandType(self):
-        arith_lists = ['add', 'sub', 'neg', 'eq',
-            'gt', 'lt', 'and', 'or', 'not']
-        for op in arith_lists:
-            if self.command.find(op) :
-                self.type = self.C_ARITHMETIC
-
         if self.command.find('push') >= 0 :
             self.type = self.C_PUSH
         elif self.command.find('pop') >= 0 :
             self.type = self.C_POP
         else :
             self.type = self.C_UNKNOWN
+
+        arith_lists = ['add', 'sub', 'neg', 'eq',
+            'gt', 'lt', 'and', 'or', 'not']
+        for op in arith_lists:
+            if self.command.find(op) >= 0 :
+                self.type = self.C_ARITHMETIC
 
         return self.type
 
