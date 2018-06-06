@@ -7,16 +7,39 @@ class CodeWriter():
     def writeArithmetic(self, command):
         if command.find('add') >= 0 :
             self.writeMicroPop()
+            list = ['@SP','A=M-1', 'M=M+D']
+            self.writeVMinst(list)
+
+        elif command.find('sub') >= 0 :
+            self.writeMicroPop()
+            list = ['@SP','A=M-1', 'M=M-D']
+            self.writeVMinst(list)
+
+        elif command.find('neg') >= 0 :
+            list = ['@SP','A=M-1', 'M=-M']
+            self.writeVMinst(list)
+
+        elif command.find('eq') >= 0 :
+            self.writeMicroPop()
             self.fout.write('@SP\n')
             self.fout.write('A=M-1\n')
-            self.fout.write('M=M+D\n')
-            
-            # self.fout.write('@SP\n')
-            # self.fout.write('M=M-1\n')
-            # self.fout.write('@SP\n')
-            # self.fout.write('A=M\n')
-            # self.fout.write('D=M+D\n')
-            # self.writeMicroPush()
+            self.fout.write('D=M-D\n')
+            self.fout.write('@LOOP'+loop_num)
+            D;
+
+        elif command.find('and') >= 0 :
+            self.writeMicroPop()
+            list = ['@SP','A=M-1', 'M=D&M']
+            self.writeVMinst(list)
+
+        elif command.find('or') >= 0 :
+            self.writeMicroPop()
+            list = ['@SP','A=M-1', 'M=D|M']
+            self.writeVMinst(list)
+
+        elif command.find('not') >= 0 :
+            list = ['@SP','A=M-1', 'M=!M']
+            self.writeVMinst(list)
 
     def writePushPop(self, command, segment, index):
         if command == Parser.Parser.C_PUSH :
@@ -30,16 +53,16 @@ class CodeWriter():
 
     # micro push: Dレジスタの値をスタックに積む
     def writeMicroPush(self):
-        self.fout.write('@SP\n')
-        self.fout.write('A=M\n')
-        self.fout.write('M=D\n')
-        self.fout.write('@SP\n')
-        self.fout.write('M=M+1\n')
+        list = ['@SP', 'A=M', 'M=D', '@SP', 'M=M+1']
+        self.writeVMinst(list)
 
     # micro pop: スタックの値をDレジスタにとってくる
     def writeMicroPop(self):
-        self.fout.write('@SP\n')
-        self.fout.write('M=M-1\n')
-        self.fout.write('@SP\n')
-        self.fout.write('A=M\n')
-        self.fout.write('D=M\n')
+        list = ['@SP', 'M=M-1','@SP','A=M', 'D=M']
+        self.writeVMinst(list)
+
+    # 引数で渡されたリスト内の命令を改行コードをつけて
+    # ファイルに出力する
+    def writeVMinst(self, vmlist) :
+        for vm in vmlist:
+            self.fout.write(vm+'\n')
