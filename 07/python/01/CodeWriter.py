@@ -50,9 +50,27 @@ class CodeWriter():
     def writePushPop(self, command, segment, index):
         if command == Parser.Parser.C_PUSH :
             if segment == 'constant' :
-                self.fout.write('@'+index+'\n')
-                self.fout.write('D=A\n')
+                list = ['@'+index, 'D=A']
+                self.writeVMinst(list)
                 self.writeMicroPush()
+            elif segment == 'local' :
+                self.writePushMem('@LCL')
+            elif segment == 'argument' :
+                self.writePushMem('@ARG')
+            elif segment == 'this' :
+                self.writePushMem('@THIS')
+            elif segment == 'that' :
+                self.writePushMem('@THAT')
+
+        elif command == Parser.Parser.C_POP :
+            if segment == 'local' :
+                self.writePopMem('@LCL')
+            elif segment == 'argument' :
+                self.writePopMem('@ARG')
+            elif segment == 'this' :
+                self.writePopMem('@THIS')
+            elif segment == 'that' :
+                self.writePopMem('@THAT')
 
     def close(self):
         self.fout.close()
@@ -86,3 +104,21 @@ class CodeWriter():
         self.writeVMinst(list)
 
         self.label_num = self.label_num + 1
+
+    # local, argument, this, thatに対するpush命令
+    def writePushMem(amem):
+        list = [amem, 'D=M', '@'+index, 'A=D+A', 'D=M']
+        self.writeVMinst(list)
+        self.writeMicroPush()
+
+    # local, argument, this, thatに対するpop命令
+    def writePopMem(amem):
+        self.writeMicroPop()
+        # PopしたデータをRAM[13]に保存する
+        list = ['@R13', M=D]
+        self.writeVMinst(list)
+        # 保存先のメモリアドレスを計算後，それをRAM[14]に保存し，
+        # その後，RAM[14]に保存されたアドレスに，RAM[13]の内容をストアする
+        list = [amem, 'D=M', '@'+index, 'D=D+A', '@R14', 'M=D',
+                '@R13','D=M', 'R14', 'A=M', 'M=D']
+        self.writeVMinst(list)
