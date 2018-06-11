@@ -54,35 +54,43 @@ class CodeWriter():
                 self.writeVMinst(list)
                 self.writeMicroPush()
             elif segment == 'local' :
-                self.writePushMem('@LCL')
+                self.writePushMem1('@LCL', index)
             elif segment == 'argument' :
-                self.writePushMem('@ARG')
+                self.writePushMem1('@ARG', index)
             elif segment == 'this' :
-                self.writePushMem('@THIS')
+                self.writePushMem1('@THIS', index)
             elif segment == 'that' :
-                self.writePushMem('@THAT')
+                self.writePushMem1('@THAT', index)
+            elif segment == 'pointer' :
+                self.writePushMem2('@3', index)
+            elif segment == 'temp' :
+                self.writePushMem2('@5', index)
 
         elif command == Parser.Parser.C_POP :
             if segment == 'local' :
-                self.writePopMem('@LCL')
+                self.writePopMem1('@LCL', index)
             elif segment == 'argument' :
-                self.writePopMem('@ARG')
+                self.writePopMem1('@ARG', index)
             elif segment == 'this' :
-                self.writePopMem('@THIS')
+                self.writePopMem1('@THIS', index)
             elif segment == 'that' :
-                self.writePopMem('@THAT')
+                self.writePopMem1('@THAT', index)
+            elif segment == 'pointer' :
+                self.writePopMem2('@3', index)
+            elif segment == 'temp' :
+                self.writePopMem2('@5', index)
 
     def close(self):
         self.fout.close()
 
     # micro push: Dレジスタの値をスタックに積む
     def writeMicroPush(self):
-        list = ['@SP', 'A=M', 'M=D', '@SP', 'M=M+1']
+        list = ['@SP', 'A=M', 'M=D', '@SP', 'M=M+1','']
         self.writeVMinst(list)
 
     # micro pop: スタックの値をDレジスタにとってくる
     def writeMicroPop(self):
-        list = ['@SP', 'M=M-1','@SP','A=M', 'D=M']
+        list = ['@SP', 'M=M-1','@SP','A=M', 'D=M','']
         self.writeVMinst(list)
 
     # 引数で渡されたリスト内の命令を改行コードをつけて
@@ -106,19 +114,37 @@ class CodeWriter():
         self.label_num = self.label_num + 1
 
     # local, argument, this, thatに対するpush命令
-    def writePushMem(amem):
-        list = [amem, 'D=M', '@'+index, 'A=D+A', 'D=M']
+    def writePushMem1(self, amem, index):
+        list = [amem, 'D=M', '@'+index, 'A=D+A', 'D=M', '']
+        self.writeVMinst(list)
+        self.writeMicroPush()
+
+    # pointer, tempに対するpush命令
+    def writePushMem2(self, amem, index):
+        list = [amem, 'D=A', '@'+index, 'A=D+A', 'D=M', '']
         self.writeVMinst(list)
         self.writeMicroPush()
 
     # local, argument, this, thatに対するpop命令
-    def writePopMem(amem):
+    def writePopMem1(self, amem, index):
         self.writeMicroPop()
         # PopしたデータをRAM[13]に保存する
-        list = ['@R13', M=D]
+        list = ['@R13', 'M=D']
         self.writeVMinst(list)
         # 保存先のメモリアドレスを計算後，それをRAM[14]に保存し，
         # その後，RAM[14]に保存されたアドレスに，RAM[13]の内容をストアする
         list = [amem, 'D=M', '@'+index, 'D=D+A', '@R14', 'M=D',
-                '@R13','D=M', 'R14', 'A=M', 'M=D']
+                '@R13','D=M', '@R14', 'A=M', 'M=D', '']
+        self.writeVMinst(list)
+
+    # local, argument, this, thatに対するpop命令
+    def writePopMem2(self, amem, index):
+        self.writeMicroPop()
+        # PopしたデータをRAM[13]に保存する
+        list = ['@R13', 'M=D']
+        self.writeVMinst(list)
+        # 保存先のメモリアドレスを計算後，それをRAM[14]に保存し，
+        # その後，RAM[14]に保存されたアドレスに，RAM[13]の内容をストアする
+        list = [amem, 'D=A', '@'+index, 'D=D+A', '@R14', 'M=D',
+                '@R13','D=M', '@R14', 'A=M', 'M=D', '']
         self.writeVMinst(list)
