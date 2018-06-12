@@ -7,7 +7,7 @@ class CodeWriter():
         self.label_num = 0
         label = os.path.basename(fname)     # ディレクトリ名を削除
         label,ext = os.path.splitext(label) # 拡張子を分離
-        self.label_index = label+'.'
+        self.label_prefix = label+'.'
 
     def writeArithmetic(self, command):
         if command.find('add') >= 0 :
@@ -65,6 +65,8 @@ class CodeWriter():
                 self.writePushMem2('@3', index)
             elif segment == 'temp' :
                 self.writePushMem2('@5', index)
+            elif segment == 'static' :
+                self.writePushStatic(index)
 
         elif command == Parser.Parser.C_POP :
             if segment == 'local' :
@@ -79,6 +81,8 @@ class CodeWriter():
                 self.writePopMem2('@3', index)
             elif segment == 'temp' :
                 self.writePopMem2('@5', index)
+            elif segment == 'static' :
+                self.writePopStatic(index)
 
     def close(self):
         self.fout.close()
@@ -102,8 +106,8 @@ class CodeWriter():
     # 比較命令の実装（分岐命令の種類の違いしかないので共通化
     def writeCompInst(self, branch) :
         self.writeMicroPop()
-        true_label = str(self.label_index)+'IFTRUE'+str(self.label_num)
-        end_label  = str(self.label_index)+'IFEND'+str(self.label_num)
+        true_label = str(self.label_prefix)+'IFTRUE'+str(self.label_num)
+        end_label  = str(self.label_prefix)+'IFEND'+str(self.label_num)
 
         list = ['@SP', 'A=M-1', 'D=M-D','@'+true_label,
                 'D;'+branch, '@SP', 'A=M-1', 'M=0', '@'+end_label,
@@ -122,6 +126,12 @@ class CodeWriter():
     # pointer, tempに対するpush命令
     def writePushMem2(self, amem, index):
         list = [amem, 'D=A', '@'+index, 'A=D+A', 'D=M', '']
+        self.writeVMinst(list)
+        self.writeMicroPush()
+
+    # static に対するpush命令
+    def writePushStatic(self, index) :
+        list = ['@'+self.label_prefix+index, 'D=M']
         self.writeVMinst(list)
         self.writeMicroPush()
 
@@ -147,4 +157,10 @@ class CodeWriter():
         # その後，RAM[14]に保存されたアドレスに，RAM[13]の内容をストアする
         list = [amem, 'D=A', '@'+index, 'D=D+A', '@R14', 'M=D',
                 '@R13','D=M', '@R14', 'A=M', 'M=D', '']
+        self.writeVMinst(list)
+
+    # staticに対するpop命令
+    def writePopStatic(self, index) :
+        self.writeMicroPop()
+        list = ['@'+self.label_prefix+index, 'M=D']
         self.writeVMinst(list)
