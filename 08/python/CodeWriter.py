@@ -166,7 +166,7 @@ class CodeWriter():
 
     # gotoコマンドをアセンブリプログラムに変換する
     def writeGoto(self, label) :
-        list = ['@'+self.label_prefix+label, 'JMP', '']
+        list = ['@'+self.label_prefix+label, '0;JMP', '']
         self.writeVMinst(list)
 
     # if-gotoコマンドをアセンブリプログラムに変換する
