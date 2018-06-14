@@ -63,6 +63,15 @@ if __name__ == '__main__' :
                 # push命令，あるいは，pop命令の場合
                 writer.writePushPop(vm_type, parser.arg1(), parser.arg2())
 
+            elif vm_type == parser.C_LABEL :
+                writer.writeLabel(parser.arg1())
+
+            elif vm_type == parser.C_GOTO :
+                writer.writeGoto(parser.arg1())
+
+            elif vm_type == parser.C_IF :
+                writer.writeIf(parser.arg1())
+
 
     # 出力ファイルをクローズする
     writer.close()

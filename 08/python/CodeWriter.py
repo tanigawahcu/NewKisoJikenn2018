@@ -97,12 +97,6 @@ class CodeWriter():
         list = ['@SP', 'M=M-1','@SP','A=M', 'D=M','']
         self.writeVMinst(list)
 
-    # 引数で渡されたリスト内の命令を改行コードをつけて
-    # ファイルに出力する
-    def writeVMinst(self, vmlist) :
-        for vm in vmlist:
-            self.fout.write(vm+'\n')
-
     # 比較命令の実装（分岐命令の種類の違いしかないので共通化
     def writeCompInst(self, branch) :
         self.writeMicroPop()
@@ -164,3 +158,25 @@ class CodeWriter():
         self.writeMicroPop()
         list = ['@'+self.label_prefix+index, 'M=D']
         self.writeVMinst(list)
+
+    # labelコマンドをアセンブリプログラムに変換する
+    def writeLabel(self, label) :
+        list = ['('+self.label_prefix+label+')']
+        self.writeVMinst(list)
+
+    # gotoコマンドをアセンブリプログラムに変換する
+    def writeGoto(self, label) :
+        list = ['@'+self.label_prefix+label, 'JMP', '']
+        self.writeVMinst(list)
+
+    # if-gotoコマンドをアセンブリプログラムに変換する
+    def writeIf(self, label) :
+        self.writeMicroPop()
+        list = ['@'+self.label_prefix+label, 'D;JNE', '']
+        self.writeVMinst(list)
+
+    # 引数で渡されたリスト内の命令を改行コードをつけて
+    # ファイルに出力する
+    def writeVMinst(self, vmlist) :
+        for vm in vmlist:
+            self.fout.write(vm+'\n')

@@ -69,6 +69,12 @@ class Parser():
             self.type = self.C_PUSH
         elif self.command.find('pop') >= 0 :
             self.type = self.C_POP
+        elif self.command.find('label') >= 0 :
+            self.type = self.C_LABEL
+        elif self.command.find('if-goto') >= 0 :
+            self.type = self.C_IF
+        elif self.command.find('goto') >= 0 :
+            self.type = self.C_GOTO
         else :
             self.type = self.C_UNKNOWN
 
@@ -85,7 +91,8 @@ class Parser():
             # 算術演算の場合，コマンドそのものを返す
             return self.fields[0]
 
-        elif self.type == self.C_POP or self.type == self.C_PUSH:
+        #elif self.type == self.C_POP or self.type == self.C_PUSH:
+        else :
             # フィールドの1つ目を返す
             return self.fields[1]
 
