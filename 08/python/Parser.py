@@ -75,6 +75,10 @@ class Parser():
             self.type = self.C_IF
         elif self.command.find('goto') >= 0 :
             self.type = self.C_GOTO
+        elif self.command.find('function') >= 0 :
+            self.type = self.C_FUNCTION
+        elif self.command.find('return') >= 0 :
+            self.type = self.C_RETURN
         else :
             self.type = self.C_UNKNOWN
 
@@ -98,6 +102,7 @@ class Parser():
 
     def arg2(self):
         # pushかpopのみ動作する
-        if self.type == self.C_PUSH or self.type == self.C_POP :
+        if self.type == self.C_PUSH or self.type == self.C_POP \
+            or self.type == self.C_FUNCTION:
             # フィールドの2つ目を返す
             return self.fields[2]

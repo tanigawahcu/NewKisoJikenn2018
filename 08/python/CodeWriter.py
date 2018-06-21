@@ -175,6 +175,52 @@ class CodeWriter():
         list = ['@'+self.label_prefix+label, 'D;JNE', '']
         self.writeVMinst(list)
 
+    # function コマンドをアセンブリプログラムに変換する
+    def writeFunction(self, functionName, numLocals) :
+        list = ['('+functionName+')']
+        self.writeVMinst(list)
+
+        for i in range(int(numLocals)) :
+            # push constant 0を実装
+            list = ['@0','D=A']
+            self.writeVMinst(list)
+            self.writeMicroPush()
+
+    # return コマンドをアセンブリプログラムに変換する
+    def writeReturn(self) :
+        # 一時変数のFRAMEをR13に割り当てる
+        # FRAME = LCL
+        list = ['@LCL', 'D=M', '@R13', 'M=D']
+        self.writeVMinst(list)
+
+        # 一時変数のRETをR14に割り当てる
+        # DレジスタにFRAMEの内容があるはず
+        # RET = *(FRAME-5)
+        list = ('@5', 'A=D-A', 'D=M', '@R14', 'M=D')
+        self.writeVMinst(list)
+
+        # *ARG = pop()
+        self.writeMicroPop()
+        list = ['@ARG', 'A=M', 'M=D']
+        self.writeVMinst(list)
+
+        # SP = ARG+1
+        list = ['@ARG', 'D=M+1', '@SP', 'M=D']
+        self.writeVMinst(list)
+
+        # THAT = *(FRAME-1)
+        # THIS = *(FRAME-2)
+        # ARG  = *(FRAME-3)
+        # LCL  = *(FRAME-4)
+        pairList = [('THAT', '1'), ('THIS', '2'), ('ARG', '3'), ('LCL', '4')]
+        for reg, index in pairList :
+            list = ['@R13', 'D=M', '@'+index, 'A=D-A', 'D=M', '@'+reg, 'M=D']
+            self.writeVMinst(list)
+
+        # goto RET
+        list = ['@R14', 'A=M', '1;JMP']
+        self.writeVMinst(list)
+
     # 引数で渡されたリスト内の命令を改行コードをつけて
     # ファイルに出力する
     def writeVMinst(self, vmlist) :
