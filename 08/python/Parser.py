@@ -65,21 +65,21 @@ class Parser():
 
     # 取り込んだ命令の種類を判別する
     def commandType(self):
-        if self.command.find('push') >= 0 :
+        if self.fields[0].find('push') >= 0 :
             self.type = self.C_PUSH
-        elif self.command.find('pop') >= 0 :
+        elif self.fields[0].find('pop') >= 0 :
             self.type = self.C_POP
-        elif self.command.find('label') >= 0 :
+        elif self.fields[0].find('label') >= 0 :
             self.type = self.C_LABEL
-        elif self.command.find('if-goto') >= 0 :
+        elif self.fields[0].find('if-goto') >= 0 :
             self.type = self.C_IF
-        elif self.command.find('goto') >= 0 :
+        elif self.fields[0].find('goto') >= 0 :
             self.type = self.C_GOTO
-        elif self.command.find('function') >= 0 :
+        elif self.fields[0].find('function') >= 0 :
             self.type = self.C_FUNCTION
-        elif self.command.find('return') >= 0 :
+        elif self.fields[0].find('return') >= 0 :
             self.type = self.C_RETURN
-        elif self.command.find('call') >= 0 :
+        elif self.fields[0].find('call') >= 0 :
             self.type = self.C_CALL
         else :
             self.type = self.C_UNKNOWN
@@ -87,7 +87,7 @@ class Parser():
         arith_lists = ['add', 'sub', 'neg', 'eq',
             'gt', 'lt', 'and', 'or', 'not']
         for op in arith_lists:
-            if self.command.find(op) >= 0 :
+            if self.fields[0].find(op) >= 0:
                 self.type = self.C_ARITHMETIC
 
         return self.type
