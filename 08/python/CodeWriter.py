@@ -8,6 +8,7 @@ class CodeWriter():
         label = os.path.basename(fname)     # ディレクトリ名を削除
         label,ext = os.path.splitext(label) # 拡張子を分離
         self.label_prefix = label+'.'
+        self.callNum = 0
 
     def writeArithmetic(self, command):
         if command.find('add') >= 0 :
@@ -218,8 +219,43 @@ class CodeWriter():
             self.writeVMinst(list)
 
         # goto RET
-        list = ['@R14', 'A=M', '1;JMP']
+        list = ['//goto RET','@R14', 'A=M', '1;JMP']
         self.writeVMinst(list)
+
+    # call コマンドをアセンブリプログラムに変換する
+    def writeCall(self, functionName, numLocals) :
+        # push return-address
+        returnLabel = functionName + '$return' + str(self.callNum)
+        list = ['@'+returnLabel, 'D=A']
+        self.writeVMinst(list)
+        self.writeMicroPush()
+
+        # push LCL, ARG, THIS, THAT
+        targetList = ['LCL', 'ARG', 'THIS', 'THAT']
+        for target in targetList :
+            list = ['@'+target, 'D=M']
+            self.writeVMinst(list)
+            self.writeMicroPush()
+
+        # ARG = SP-n-5
+        list = ['@SP', 'D=M', '@'+numLocals, 'D=D-A',
+            '@5', 'D=D-A', '@ARG', 'M=D']
+        self.writeVMinst(list)
+
+        # LCL = SP
+        list = ['@SP', 'D=M', '@LCL', 'M=D']
+        self.writeVMinst(list)
+
+        # goto f
+        list = ['@'+functionName, '1;JMP']
+        self.writeVMinst(list)
+
+        # (return address)
+        self.writeVMinst(['('+returnLabel+')'])
+
+        # call回数を1つ増やす
+        self.callNum = self.callNum + 1
+
 
     # 引数で渡されたリスト内の命令を改行コードをつけて
     # ファイルに出力する

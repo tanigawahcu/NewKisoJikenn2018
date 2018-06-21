@@ -79,6 +79,9 @@ if __name__ == '__main__' :
             elif vm_type == parser.C_RETURN :
                 writer.writeReturn()
 
+            elif vm_type == parser.C_CALL :
+                writer.writeCall(parser.arg1(), parser.arg2())
+
 
     # 出力ファイルをクローズする
     writer.close()
