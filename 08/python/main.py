@@ -30,7 +30,8 @@ if __name__ == '__main__' :
         # 作業ディレクトリ内にvmファイル以外があってもよい？？
         dir_name = sys.argv[1].strip('/')
         for fname in os.listdir(dir_name) :
-            input_file_list.append(dir_name+'/'+fname)
+            if fname.find('.vm') >= 0 :
+                input_file_list.append(dir_name+'/'+fname)
 
         # 入力ディレクトリ名から出力ファイル名を作成する
         output_file_name = dir_name + '.asm'
