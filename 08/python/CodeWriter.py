@@ -10,6 +10,15 @@ class CodeWriter():
         self.label_prefix = label+'.'
         self.callNum = 0
 
+    # ブートストラップを挿入する
+    def writeInit(self) :
+        # SP = 256
+        list = ['@256', 'D=A', '@SP', 'M=D']
+        self.writeVMinst(list)
+
+        # call Sys.init
+        self.writeCall('Sys.init', '0')
+
     def writeArithmetic(self, command):
         if command.find('add') >= 0 :
             self.writeMicroPop()

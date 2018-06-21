@@ -39,6 +39,9 @@ if __name__ == '__main__' :
     #CodeWriterモジュールをインスタンス化する
     writer = CodeWriter.CodeWriter(output_file_name)
 
+    # ブートストラップを挿入する
+    writer.writeInit()
+
     # 入力ファイル毎にParserを呼び出し，出力ファイルに書き込んでいく
     for fin_name in input_file_list:
 
