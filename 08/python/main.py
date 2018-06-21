@@ -48,6 +48,9 @@ if __name__ == '__main__' :
         # Parserオブジェクトを生成する
         parser = Parser.Parser(fin_name)
 
+        # 出力モジュールに新しい入力ファイルになったことを知らせる
+        writer.setFileName(fin_name)
+
         # 入力ファイルがコマンド（命令）を読み取れる限り，以下の処理を繰り返す
         while( parser.hasMoreCommands()):
             # 次の命令をフェッチする

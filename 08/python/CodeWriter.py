@@ -5,10 +5,13 @@ class CodeWriter():
     def __init__(self, fname):
         self.fout = open(fname, 'w')
         self.label_num = 0
-        label = os.path.basename(fname)     # ディレクトリ名を削除
-        label,ext = os.path.splitext(label) # 拡張子を分離
-        self.label_prefix = label+'.'
         self.callNum = 0
+
+    # 新しい入力ファイルが読み込まれるたびに読まれ，ベースとするラベル名を更新する
+    def setFileName(self, fileName) :
+        label = os.path.basename(fileName)  # ディレクトリ名を削除
+        label,ext = os.path.splitext(label)  # 拡張子を分離
+        self.label_prefix = label+'.'
 
     # ブートストラップを挿入する
     def writeInit(self) :
